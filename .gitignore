@@ -1,0 +1,31 @@
+# CCS workspace metadata
+.metadata/
+.jxbrowser.userdata/
+
+# CCS build output
+Debug/
+Release/
+build/
+*.out
+*.map
+*.obj
+*.o
+*.d
+*.bin
+*.hex
+
+# Temporary and log files
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# Windows files
+Thumbs.db
+Desktop.ini
+
+# VS Code
+.vscode/
+
+RemoteSystemsTempFiles/

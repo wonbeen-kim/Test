@@ -22,7 +22,7 @@
 void empty_main(void *args)
 {
     uint32_t loopcnt = 5U;
-    uint32_t delaySec = 1U;
+    uint32_t delayUs = 2000000U;
     uint32_t gpioBaseAddr;
     uint32_t pinNum;
 
@@ -61,16 +61,16 @@ void empty_main(void *args)
 #endif
 
     DebugP_log("LED will Blink for %d seconds ...\r\n",
-               (loopcnt * delaySec * 2U));
+               (loopcnt * delayUs * 2U) / 1000000U);
 
     /* 지정한 횟수만큼 LED를 ON/OFF 한다. */
     while (loopcnt > 0U)
     {
         GPIO_pinWriteHigh(gpioBaseAddr, pinNum);
-        ClockP_sleep(delaySec);
+        ClockP_usleep(delayUs);
 
         GPIO_pinWriteLow(gpioBaseAddr, pinNum);
-        ClockP_sleep(delaySec);
+        ClockP_usleep(delayUs);
 
         loopcnt--;
     }

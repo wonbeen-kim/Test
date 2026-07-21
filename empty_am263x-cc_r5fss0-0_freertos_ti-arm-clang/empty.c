@@ -48,10 +48,16 @@ void empty_main(void *args)
     while (loopcnt > 0U)
     {
         GPIO_pinWriteHigh(gpioBaseAddr, pinNum);
-        ClockP_usleep(delayUs);
+        for (uint32_t i = 0U; i < 200000U; i++)
+        {
+            ClockP_usleep(10U);
+        }
 
         GPIO_pinWriteLow(gpioBaseAddr, pinNum);
-        ClockP_usleep(delayUs);
+        for (uint32_t i = 0U; i < 200000U; i++)
+        {
+            ClockP_usleep(10U);
+        }
 
         loopcnt--;
     }

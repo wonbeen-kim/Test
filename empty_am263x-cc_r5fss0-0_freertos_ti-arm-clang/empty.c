@@ -1,71 +1,99 @@
 #include <stdint.h>
+
 #include <drivers/gpio.h>
+#include <drivers/rti.h>
+
 #include <kernel/dpl/AddrTranslateP.h>
-#include <kernel/dpl/ClockP.h>
 #include <kernel/dpl/DebugP.h>
 
 #include "ti_drivers_config.h"
 #include "ti_drivers_open_close.h"
 #include "ti_board_open_close.h"
 
+#define LED_ON           (0x01U)
+#define LED_OFF          (0x00U)
+#define LED_BLINK_COUNT  (10U)
+
+volatile uint32_t gLedState;
+volatile uint32_t gBlinkCount;
+
+uint32_t gpioBaseAddr;
+uint32_t pinNum;
 
 void empty_main(void *args)
 {
-    uint32_t loopcnt = 5U;
-    uint32_t delayUs = 2000000U;
-    uint32_t gpioBaseAddr;
-    uint32_t pinNum;
-
     (void)args;
 
-    Drivers_open();
+Drivers_open();
+Board_driversOpen();
 
-    Board_driversOpen();
+DebugP_log("[RTI LED Blink Test] Starting ...\\r\\n");
 
-    gpioBaseAddr =
-        (uint32_t)AddrTranslateP_getLocalAddr(GPIO_LED_BASE_ADDR);
+gpioBaseAddr =
+    (uint32_t)AddrTranslateP_getLocalAddr(GPIO_LED_BASE_ADDR);
 
-    pinNum = GPIO_LED_PIN;
+pinNum = GPIO_LED_PIN;
 
-    GPIO_setDirMode(gpioBaseAddr,
-                    pinNum,
-                    GPIO_LED_DIR);
+gLedState = LED_ON;
 
-#if defined(AMP_FREERTOS_A53)
 
-    DebugP_log("GPIO LED Blink Test Started on a53_core%d ...\r\n",
-               Armv8_getCoreId());
+gBlinkCount = 0U;
 
-#else
+GPIO_setDirMode(gpioBaseAddr,
+                pinNum,
+                GPIO_LED_DIR);
 
-    DebugP_log("GPIO LED Blink Test Started ...\r\n");
 
-#endif
+GPIO_pinWriteHigh(gpioBaseAddr,
+                  pinNum);
 
-    DebugP_log("LED will Blink for %d seconds ...\r\n",
-               (loopcnt * delayUs * 2U) / 1000000U);
 
-    while (loopcnt > 0U)
-    {
-        GPIO_pinWriteHigh(gpioBaseAddr, pinNum);
-        for (uint32_t i = 0U; i < 200000U; i++)
-        {
-            ClockP_usleep(10U);
-        }
+(void)RTI_counterEnable(CONFIG_RTI0_BASE_ADDR,
+                        RTI_TMR_CNT_BLK_INDEX_0);
 
-        GPIO_pinWriteLow(gpioBaseAddr, pinNum);
-        for (uint32_t i = 0U; i < 200000U; i++)
-        {
-            ClockP_usleep(10U);
-        }
+DebugP_log("[RTI LED Blink Test] Timer Started ...\\r\\n");
 
-        loopcnt--;
-    }
 
-    DebugP_log("GPIO LED Blink Test Passed!!\r\n");
-    DebugP_log("All tests have passed!!\r\n");
+while (gBlinkCount < LED_BLINK_COUNT)
+{
 
-    Board_driversClose();
+}
 
-    Drivers_close();
+
+(void)RTI_counterDisable(CONFIG_RTI0_BASE_ADDR,
+                         RTI_TMR_CNT_BLK_INDEX_0);
+
+DebugP_log("[RTI LED Blink Test] Timer Stopped ...\\r\\n");
+
+DebugP_log("GPIO LED Blink Test Passed!!\\r\\n");
+DebugP_log("All tests have passed!!\\r\\n");
+
+
+Board_driversClose();
+
+Drivers_close();
+
+}
+
+void rtiEvent0(void)
+{
+
+if (gLedState == LED_ON)
+{
+    GPIO_pinWriteLow(gpioBaseAddr,
+                     pinNum);
+
+    gLedState = LED_OFF;
+}
+
+else
+{
+    GPIO_pinWriteHigh(gpioBaseAddr,
+                      pinNum);
+
+    gLedState = LED_ON;
+}
+
+gBlinkCount++;
+
 }

@@ -8,6 +8,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+
 #define MAIN_TASK_PRI   (configMAX_PRIORITIES - 1)
 
 #define MAIN_TASK_SIZE  (16384U / sizeof(configSTACK_DEPTH_TYPE))
@@ -18,6 +19,8 @@ StackType_t gMainTaskStack[MAIN_TASK_SIZE]
 StaticTask_t gMainTaskObj;
 
 TaskHandle_t gMainTask;
+
+void adc_soc_software_main(void *args);
 
 void empty_main(void *args);
 

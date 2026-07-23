@@ -9,6 +9,8 @@
 /**
  * Import the modules used in this configuration.
  */
+const adc             = scripting.addModule("/drivers/adc/adc", {}, false);
+const adc1            = adc.addInstance();
 const gpio            = scripting.addModule("/drivers/gpio/gpio", {}, false);
 const gpio1           = gpio.addInstance();
 const rti             = scripting.addModule("/drivers/rti/rti", {}, false);
@@ -45,6 +47,13 @@ const section12       = section.addInstance();
 /**
  * Write custom configuration values to the imported modules.
  */
+adc1.$name             = "CONFIG_ADC0";
+adc1.enableConverter   = true;
+adc1.adcClockPrescaler = "ADC_CLK_DIV_4_0";
+adc1.enableInterrupt1  = true;
+adc1.soc0Channel       = "ADC_CH_ADCIN2";
+adc1.ADC.$assign       = "ADC0";
+
 gpio1.$name          = "GPIO_LED";
 gpio1.pinDir         = "OUTPUT";
 gpio1.GPIO_n.$assign = "QSPI_CSn1";
@@ -65,8 +74,36 @@ rti1.eventCallback3 = "rtiEvent3";
 rti1.nsecPerTick3   = 4000000;
 rti1.nsecPerTick2   = 3000000;
 
+const soc_ctrl_adc    = scripting.addModule("/drivers/soc_ctrl/v0/subModules/soc_ctrl_adc", {}, false);
+const soc_ctrl_adc1   = soc_ctrl_adc.addInstance({}, false);
+soc_ctrl_adc1.$name   = "soc_ctrl_adc0";
+const soc_ctrl        = scripting.addModule("/drivers/soc_ctrl/soc_ctrl", {}, false);
+soc_ctrl.soc_ctrl_adc = soc_ctrl_adc1;
+adc.ADCreferences     = soc_ctrl_adc1;
+
+const soc_ctrl_cmpss    = scripting.addModule("/drivers/soc_ctrl/v0/subModules/soc_ctrl_cmpss", {}, false);
+const soc_ctrl_cmpss1   = soc_ctrl_cmpss.addInstance({}, false);
+soc_ctrl_cmpss1.$name   = "soc_ctrl_cmpss0";
+soc_ctrl.soc_ctrl_cmpss = soc_ctrl_cmpss1;
+
+const soc_ctrl_ecap    = scripting.addModule("/drivers/soc_ctrl/v0/subModules/soc_ctrl_ecap", {}, false);
+const soc_ctrl_ecap1   = soc_ctrl_ecap.addInstance({}, false);
+soc_ctrl_ecap1.$name   = "soc_ctrl_ecap0";
+soc_ctrl.soc_ctrl_ecap = soc_ctrl_ecap1;
+
+const soc_ctrl_epwm    = scripting.addModule("/drivers/soc_ctrl/v0/subModules/soc_ctrl_epwm", {}, false);
+const soc_ctrl_epwm1   = soc_ctrl_epwm.addInstance({}, false);
+soc_ctrl_epwm1.$name   = "soc_ctrl_epwm0";
+soc_ctrl.soc_ctrl_epwm = soc_ctrl_epwm1;
+
+const soc_ctrl_sdfm    = scripting.addModule("/drivers/soc_ctrl/v0/subModules/soc_ctrl_sdfm", {}, false);
+const soc_ctrl_sdfm1   = soc_ctrl_sdfm.addInstance({}, false);
+soc_ctrl_sdfm1.$name   = "soc_ctrl_sdfm0";
+soc_ctrl.soc_ctrl_sdfm = soc_ctrl_sdfm1;
+
 debug_log.enableUartLog            = true;
-debug_log.uartLog.$name            = "CONFIG_UART0";
+debug_log.uartLog.$name            = "CONFIG_UART_CONSOLE";
+debug_log.uartLog.intrEnable       = "DISABLE";
 debug_log.uartLog.UART.RXD.$assign = "UART0_RXD";
 debug_log.uartLog.UART.TXD.$assign = "UART0_TXD";
 debug_log.uartLog.child.$name      = "drivers_uart_v2_uart_v2_template0";
@@ -296,5 +333,11 @@ section12.output_section[0].alignment = 0;
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
+adc1.ADC.AIN0.$suggestSolution          = "ADC0_AIN0";
+adc1.ADC.AIN1.$suggestSolution          = "ADC0_AIN1";
+adc1.ADC.AIN2.$suggestSolution          = "ADC0_AIN2";
+adc1.ADC.AIN3.$suggestSolution          = "ADC0_AIN3";
+adc1.ADC.AIN4.$suggestSolution          = "ADC0_AIN4";
+adc1.ADC.AIN5.$suggestSolution          = "ADC0_AIN5";
 rti1.RTI.$suggestSolution               = "RTI1";
 debug_log.uartLog.UART.$suggestSolution = "UART0";
